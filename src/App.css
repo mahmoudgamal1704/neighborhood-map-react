@@ -28,8 +28,8 @@ ol li {
   display: none;
 }
 .side span {
-  background-color: blue;
-  font-size: 1.2em;
+  /*background-color: blue;*/
+  font-size: 1em;
   height: auto;
 }
 
@@ -51,3 +51,40 @@ ol li {
 .main header a:hover {
   cursor: pointer;
 }
+.dropbtn {
+    background-color: #3498DB;
+    color: white;
+    font-size: 16px;
+    border: none;
+    cursor: pointer;
+}
+
+.dropbtn:hover, .dropbtn:focus {
+    background-color: #2980B9;
+}
+
+.dropdown {
+    position: relative;
+    display: inline-block;
+}
+
+.dropdown-content {
+    display: none;
+    position: absolute;
+    background-color: #f1f1f1;
+    min-width: 160px;
+    overflow: auto;
+    box-shadow: 0px 8px 16px 0px rgba(0,0,0,0.2);
+    z-index: 1;
+    margin: 0 0 0 40%;
+}
+
+.dropdown-content a {
+    color: black;
+    padding: 12px 16px;
+    text-decoration: none;
+    display: block;
+}
+
+.dropdown a:hover {background-color: #000;}
+.show {display: block;}
