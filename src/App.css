@@ -21,6 +21,9 @@ ol li {
 #map {
   height: 100%;
 }
+.markerlogo{
+  width: 30%;
+}
 .side a:hover {
   cursor: pointer;
 }

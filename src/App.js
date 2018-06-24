@@ -217,4 +217,5 @@ function populateInfoWindow(marker, infowindow) {
       infowindow.addListener('closeclick', function() {
         infowindow.marker = null;
       });
+  }
 }
