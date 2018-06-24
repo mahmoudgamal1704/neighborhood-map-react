@@ -55,9 +55,9 @@ state = {
   ],
   //this for store data for my city
   city:{
-  	name:'Alexandria',
-  	lat: 31.204752,
-  	lng: 29.893712,
+    name:'Alexandria',
+    lat: 31.204752,
+    lng: 29.893712,
   },
   filterdlocatios: []
 }
@@ -73,8 +73,8 @@ state = {
     map = new window.google.maps.Map(document.getElementById('map'), {
       center: {lat: this.state.city.lat, lng: this.state.city.lng},
       zoom: 15,
-	  mapTypeId: window.google.maps.MapTypeId.TERRAIN,
-      disableDefaultUI: true	
+    mapTypeId: window.google.maps.MapTypeId.TERRAIN,
+      disableDefaultUI: true  
     });
      var largeInfowindow = new window.google.maps.InfoWindow();
     this.state.filterdlocatios.map(location => (
@@ -190,18 +190,31 @@ getmarker = (title) => {
 }
 
 export default App;
-
-
 function populateInfoWindow(marker, infowindow) {
     // Check to make sure the infowindow is not already opened on this marker.
     if (infowindow.marker !== marker) {
       infowindow.marker = marker;
       var content = '<div><p>' + marker.title +'</p><img src=' +  marker.logo  + ' alt="logo" class="markerlogo"/><p> ' + marker.typee + '</p><p>'+ marker.add + '</p></div>';
-      infowindow.setContent(content);
+     var clientID = "AU431WRKS3SLDDFNDVPCEXGLBKQOXKBJSLGREEIKZ103E5OF";
+  var clientSecret = "NKYLROA3QY2MKOBL2O4JWFO0NEUADXXUECON2EJ1GVE04QGK";
+  var URL = "https://api.foursquare.com/v2/venues/search?client_id=" + clientID + "&client_secret=" + clientSecret + "&v=20130815&ll=" + marker.getPosition().lat() + "," + marker.getPosition().lng() + "&limit=1";
+  fetch(URL)
+    .then(
+      function (response){
+        if (response.status !== 200){
+          infowindow.setContent('Data Can not loaded');
+          return;
+        }
+        response.json().then(function(data){
+          var locationData = data.response.venues[0];
+          var Link = '<a href="https://foursquare.com/v/' + locationData.id + '" target="_blank"> Read More From Here</a>';
+          infowindow.setContent(content + Link);
+        })
+      }
+      )
       infowindow.open(map, marker);
       // Make sure the marker property is cleared if the infowindow is closed.
       infowindow.addListener('closeclick', function() {
         infowindow.marker = null;
       });
-    }
 }
