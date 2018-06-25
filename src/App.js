@@ -70,10 +70,14 @@ state = {
         });
   
 }
+loadError = (oError) => {
+  throw new URIError("The script " + oError.target.src + " didn't load correctly.");
+}
 gm_authFailure(){
     window.alert("Google Maps error!")
 }
   initMap = () => {
+
     map = new window.google.maps.Map(document.getElementById('map'), {
       center: {lat: this.state.city.lat, lng: this.state.city.lng},
       zoom: 12,
@@ -102,6 +106,7 @@ gm_authFailure(){
     var ref = window.document.getElementsByTagName("script")[0];
     var script = window.document.createElement("script");
     script.src = src;
+    script.onerror = this.loadError;
     script.async = true;
     ref.parentNode.insertBefore(script, ref);
 }
@@ -113,26 +118,35 @@ gm_authFailure(){
    var sidebar = document.getElementById('sidebar');
   sidebar.classList.toggle("hidden");
 }
+func = (even) => {
+	this.setState({
+            filterdlocatios: even
+        }, function() {
+        	this.initMap();
+        });
+}
   filterlocations = (event) => {
-  var mak = this.getmarker('Alexandria Faculty of Medicine')
-  mak.setMap(null);
   var query = event.target.value;
   if (query){
   var newlocations = [] ;
-    this.state.filterdlocatios.map(location => {
+
+    this.state.locations.map(location => {
       if ( location.name.toUpperCase().indexOf(query.toUpperCase()) >= 0 ) {
-       return newlocations.push(location);
+        newlocations.push(location);
       }
     })
-    this.setState({
-            filterdlocatios: newlocations
-        });
+    this.func(newlocations)       
 }else {
+
   this.setState({
             filterdlocatios: this.state.locations
+        }, function() {
+        	this.initMap();
         });
 }
-        this.initMap();
+        
+        
+
 }
  delay = (ms) => {
    ms += new Date().getTime();
@@ -148,13 +162,11 @@ filter = (event) => {
   bar.click();
 }
 refresh = () => {
- this.setState({
-            filterdlocatios: this.state.locations
-        });
+
         document.getElementById("myDropdown").classList.toggle("show");
         var bar = document.getElementById("txt")
-        bar.value= "";
-        this.initMap();
+        bar.value="";
+        bar.click();
 }
 open = (event) => {
   window.google.maps.event.trigger(this.getmarker(event.target.innerText), 'click');
@@ -178,7 +190,7 @@ getmarker = (title) => {
                       </div></span>
           <ol>
             {this.state.filterdlocatios.map(location => (
-            <li role="button" key={location.lat} onClick={this.open} tabIndex={this.state.filterdlocatios.indexOf(location)+1}>{location.name}</li>
+            <li role="button" key={location.lat} onClick={this.open} tabIndex={this.state.filterdlocatios.indexOf(location)}>{location.name}</li>
           ))}
           </ol>
         </nav>
@@ -194,6 +206,7 @@ getmarker = (title) => {
 }
 
 export default App;
+ 
 function populateInfoWindow(marker, infowindow) {
     // Check to make sure the infowindow is not already opened on this marker.
     if (infowindow.marker !== marker) {
@@ -213,12 +226,16 @@ function populateInfoWindow(marker, infowindow) {
           var locationData = data.response.venues[0];
           var loactionname = locationData.name;
           var content = '<div><p>' + marker.title +'</p><img src=' +  marker.logo  + ' alt="' + loactionname + ' Picture" class="markerlogo"/><p> ' + marker.typee + '</p><p>'+ marker.add + '</p></div>';
-          
           var Link = '<a href="https://foursquare.com/v/' + locationData.id + '" target="_blank"> Read More From Here</a>';
           infowindow.setContent(content + Link);
         })
+        
       }
       )
+      .catch(function (err) {
+                const error = "Can't load data.";
+                infowindow.setContent(error);
+            });
       infowindow.open(map, marker);
       // Make sure the marker property is cleared if the infowindow is closed.
       infowindow.addListener('closeclick', function() {
