@@ -49,7 +49,7 @@ state = {
         lng:29.899474,
         typee:'A popular place',
         add:'Abou Al Kassm Al Shabi, Al Mesallah Sharq, Qesm Al Attarin, Alexandria Governorate 21532',
-        logo:'http://www.horytna.net/Files/Articles/2014_02/101373_large.jpg',
+        logo:'http://www.vetogate.com/upload/photo/gallery/188/5/370.jpg',
         marker:''
       }
   ],
@@ -63,16 +63,20 @@ state = {
 }
   componentDidMount() {
   window.initMap = this.initMap;
+  window.gm_authFailure = this.gm_authFailure;
   this.loadJS('https://maps.googleapis.com/maps/api/js?key=AIzaSyBZjYXBlQ61P4-XqTZiWi0wEUGhdDEedF4&v=3&callback=initMap');
   this.setState({
             filterdlocatios: this.state.locations
         });
   
 }
+gm_authFailure(){
+    window.alert("Google Maps error!")
+}
   initMap = () => {
     map = new window.google.maps.Map(document.getElementById('map'), {
       center: {lat: this.state.city.lat, lng: this.state.city.lng},
-      zoom: 15,
+      zoom: 12,
     mapTypeId: window.google.maps.MapTypeId.TERRAIN,
       disableDefaultUI: true  
     });
@@ -165,7 +169,7 @@ getmarker = (title) => {
         <nav className="w3-sidebar w3-bar-block w3-border-right side" id="sidebar">
           <a onClick={this.close} className="w3-bar-item w3-large">Close &times;</a>
           <h3>Gemy Locations</h3>
-          <input type="text"  name="search" placeholder="search here" onChange={this.filterlocations} onKeyPress={this.filterlocations} onClick={this.filterlocations} id="txt"/><span ><button onClick={this.drobdown} className="dropbtn"><span className="fa fa-filter">Filter</span></button>
+          <input role="search"  aria-labelledby="Search Locations" type="text"  name="search" placeholder="search here" onChange={this.filterlocations} onKeyPress={this.filterlocations} onClick={this.filterlocations} id="txt"/><span ><button onClick={this.drobdown} className="dropbtn"><span className="fa fa-filter">Filter</span></button>
                       <div id="myDropdown" className="dropdown-content">
                         {this.state.locations.map(location => (
                             <a key={location.lat} onClick={this.filter}>{location.name}</a>
@@ -174,15 +178,15 @@ getmarker = (title) => {
                       </div></span>
           <ol>
             {this.state.filterdlocatios.map(location => (
-            <li key={location.lat} onClick={this.open}>{location.name}</li>
+            <li role="button" key={location.lat} onClick={this.open} tabIndex={this.state.filterdlocatios.indexOf(location)+1}>{location.name}</li>
           ))}
           </ol>
         </nav>
-        <div className="main">
+        <div className="main" role="application">
           <header>
             <a className="fa fa-bars" id="bar" onClick={this.hidebar}></a>
           </header>
-          <div id="map"></div>
+          <div id="map" role="application"></div>
         </div>
       </div>
     );
@@ -194,7 +198,7 @@ function populateInfoWindow(marker, infowindow) {
     // Check to make sure the infowindow is not already opened on this marker.
     if (infowindow.marker !== marker) {
       infowindow.marker = marker;
-      var content = '<div><p>' + marker.title +'</p><img src=' +  marker.logo  + ' alt="logo" class="markerlogo"/><p> ' + marker.typee + '</p><p>'+ marker.add + '</p></div>';
+      
      var clientID = "AU431WRKS3SLDDFNDVPCEXGLBKQOXKBJSLGREEIKZ103E5OF";
   var clientSecret = "NKYLROA3QY2MKOBL2O4JWFO0NEUADXXUECON2EJ1GVE04QGK";
   var URL = "https://api.foursquare.com/v2/venues/search?client_id=" + clientID + "&client_secret=" + clientSecret + "&v=20130815&ll=" + marker.getPosition().lat() + "," + marker.getPosition().lng() + "&limit=1";
@@ -207,6 +211,9 @@ function populateInfoWindow(marker, infowindow) {
         }
         response.json().then(function(data){
           var locationData = data.response.venues[0];
+          var loactionname = locationData.name;
+          var content = '<div><p>' + marker.title +'</p><img src=' +  marker.logo  + ' alt="' + loactionname + ' Picture" class="markerlogo"/><p> ' + marker.typee + '</p><p>'+ marker.add + '</p></div>';
+          
           var Link = '<a href="https://foursquare.com/v/' + locationData.id + '" target="_blank"> Read More From Here</a>';
           infowindow.setContent(content + Link);
         })
