@@ -1,6 +1,7 @@
 import React, { Component } from 'react';
 
 import './App.css';
+import Mapjs from './map'
 var map ;
 var markers = [] ;
 class App extends Component {
@@ -16,6 +17,7 @@ state = {
         logo:'http://www.vetogate.com/upload/photo/news/311/7/500x282o/789.jpg?q=1',
         marker:''
       },
+      
       {
         name:'Bibliotheca Alexandrina Conference Center (BACC)',
         lat:31.208243,
@@ -72,12 +74,13 @@ state = {
 }
 loadError = (oError) => {
   throw new URIError("The script " + oError.target.src + " didn't load correctly.");
+  window.alert("The script " + oError.target.src + " didn't load correctly.");
 }
 gm_authFailure(){
     window.alert("Google Maps error!")
 }
   initMap = () => {
-
+  	var filterlocations = this.state.filterdlocatios;
     map = new window.google.maps.Map(document.getElementById('map'), {
       center: {lat: this.state.city.lat, lng: this.state.city.lng},
       zoom: 12,
@@ -95,13 +98,19 @@ gm_authFailure(){
           typee:location.typee
         }),
       location.marker.addListener('click', function() {
-
+      		for (var i = 0 ; i < filterlocations.length ; i++) {
+      				if (filterlocations[i].marker.getAnimation() !== null){
+      					filterlocations[i].marker.setAnimation(null);
+      				}
+      			 	}
+      		toggleBounce(location.marker);
             populateInfoWindow(this, largeInfowindow);
         }),
         markers.push(location.marker)
     ))
    
 }
+ 
  loadJS = (src) => {
     var ref = window.document.getElementsByTagName("script")[0];
     var script = window.document.createElement("script");
@@ -159,7 +168,7 @@ filter = (event) => {
   var bar = document.getElementById("txt")
   bar.value= event.target.innerText;
   document.getElementById("myDropdown").classList.toggle("show");
-  bar.click();
+  bar.click();  
 }
 refresh = () => {
 
@@ -169,6 +178,7 @@ refresh = () => {
         bar.click();
 }
 open = (event) => {
+	var marker = this.getmarker(event.target.innerText)
   window.google.maps.event.trigger(this.getmarker(event.target.innerText), 'click');
 }
 getmarker = (title) => {
@@ -178,7 +188,7 @@ getmarker = (title) => {
   render() {
     return (
       <div className="App">
-        <nav className="w3-sidebar w3-bar-block w3-border-right side" id="sidebar">
+      	<nav className="w3-sidebar w3-bar-block w3-border-right side" id="sidebar">
           <a onClick={this.close} className="w3-bar-item w3-large">Close &times;</a>
           <h3>Gemy Locations</h3>
           <input role="search"  aria-labelledby="Search Locations" type="text"  name="search" placeholder="search here" onChange={this.filterlocations} onKeyPress={this.filterlocations} onClick={this.filterlocations} id="txt"/><span ><button onClick={this.drobdown} className="dropbtn"><span className="fa fa-filter">Filter</span></button>
@@ -194,12 +204,7 @@ getmarker = (title) => {
           ))}
           </ol>
         </nav>
-        <div className="main" role="application">
-          <header>
-            <a className="fa fa-bars" id="bar" onClick={this.hidebar}></a>
-          </header>
-          <div id="map" role="application"></div>
-        </div>
+        <Mapjs initmap={this.initmap}/>
       </div>
     );
   }
@@ -208,7 +213,7 @@ getmarker = (title) => {
 export default App;
  
 function populateInfoWindow(marker, infowindow) {
-    // Check to make sure the infowindow is not already opened on this marker.
+
     if (infowindow.marker !== marker) {
       infowindow.marker = marker;
       
@@ -236,10 +241,21 @@ function populateInfoWindow(marker, infowindow) {
                 const error = "Can't load data.";
                 infowindow.setContent(error);
             });
+
       infowindow.open(map, marker);
       // Make sure the marker property is cleared if the infowindow is closed.
       infowindow.addListener('closeclick', function() {
         infowindow.marker = null;
+        marker.setAnimation(null);
       });
   }
+}
+function toggleBounce(marker) {
+        if (marker.getAnimation() !== null) {
+          marker.setAnimation(null);
+          console.log('fail')
+        } else {
+          marker.setAnimation(window.google.maps.Animation.BOUNCE);
+          console.log(marker)
+        }        
 }
